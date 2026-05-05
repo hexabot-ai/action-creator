@@ -1,10 +1,10 @@
 # Action Authoring Guide
 
-Use this guide after inspecting the current Hexabot repo. Repo code wins over this reference when details differ.
+Use this guide after inspecting the current Hexabot repo, application repo, or standalone action package. Target project code and installed package types win over this reference when details differ. If only this skill bundle is available, treat this guide as versioned background and state that runtime verification still needs a Hexabot project.
 
 ## Current API action architecture
 
-- API actions live on top of `@hexabot-ai/agentic` and are exposed through `packages/api/src/actions`.
+- API actions live on top of `@hexabot-ai/agentic` and are exposed by the Hexabot API package.
 - `BaseAction` extends `AbstractAction`, is `@Injectable()`, implements `OnModuleInit`, and registers itself with `ActionService`.
 - `createAction` returns an injectable `BaseAction` subclass for simple actions.
 - `ActionService` stores a registry keyed by action name and exposes JSON Schema definitions for UI/workflow authoring.
@@ -20,17 +20,19 @@ Use this guide after inspecting the current Hexabot repo. Repo code wins over th
 
 ## File placement and discovery
 
-- Built-in actions are under `packages/api/src/extensions/actions/<group>/*.action.ts`.
+- In the Hexabot monorepo, built-in actions are under `packages/api/src/extensions/actions/<group>/*.action.ts`.
+- In a generated or standalone `hexabot-action-*` package, inspect the package template, `package.json`, TypeScript config, and source tree before choosing import paths or file placement.
+- In an application repo, inspect the configured extension output/source locations before assuming where custom actions compile.
 - Runtime discovery loads compiled `.action.js` files from:
   - `node_modules/@hexabot-ai/api/dist/extensions/actions/**/*.action.js`
   - `node_modules/hexabot-action-*/**/*.action.js`
   - `dist/extensions/actions/**/*.action.js`
 - Runtime binding kinds load compiled `.binding.js` files from equivalent action extension paths.
-- For npm-distributed custom actions, inspect the target package template or project layout before creating files. The package name convention is `hexabot-action-*`.
+- For npm-distributed custom actions, the package name convention is `hexabot-action-*`.
 
 ## Implementation steps
 
-1. Inspect `packages/api/src/actions/types.ts`, `base-action.ts`, and `create-action.ts`.
+1. Inspect the active project's action APIs first. In the Hexabot monorepo, start with `packages/api/src/actions/types.ts`, `base-action.ts`, and `create-action.ts`. Outside the monorepo, inspect the generated package template or installed Hexabot package exports before choosing imports.
 2. Inspect at least one nearby action with the same concern:
    - External HTTP: `extensions/actions/web/http-request.action.ts`.
    - Memory writes: `extensions/actions/memory/update-memory.action.ts`.
@@ -68,7 +70,7 @@ Common services available through `context.services` include `logger`, `settings
 ## Guardrails
 
 - Preserve source license headers in Hexabot source files.
-- Do not modify generated `dist/` files directly.
-- Do not add dependencies without PNPM workspace filters and a clear need.
-- Do not hand-edit lockfiles.
+- Do not modify generated `dist/` files directly; update source files and rebuild.
+- Do not add dependencies without a clear need and without following the target project's package manager and workspace conventions.
+- Do not hand-edit lockfiles unless the target project's established workflow requires it.
 - Keep workflow orchestration in YAML; keep one bounded capability inside each action.

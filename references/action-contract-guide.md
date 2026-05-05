@@ -42,7 +42,7 @@ Design the action contract before writing code. The contract should be stable en
 - Declare `supportedBindings` only when the action consumes runtime bindings.
 - Built-in AI actions commonly support `tools`, `mcp`, `model`, and `memory`.
 - `model` is a single binding kind; `tools`, `memory`, and `mcp` are multiple binding kinds in the current API.
-- If adding a new binding kind, inspect `packages/api/src/bindings/**` and follow `createBindingKind` examples. Do not invent binding metadata.
+- If adding a new binding kind inside the Hexabot monorepo, inspect `packages/api/src/bindings/**` and follow `createBindingKind` examples. In a standalone package, inspect the installed API exports or target package template first. Do not invent binding metadata.
 - Validate nested binding support when a binding definition mounts other bindings.
 
 ## Workflow compatibility

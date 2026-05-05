@@ -11,7 +11,7 @@ Purpose:
 - ...
 
 Runtime:
-- Target: API extension action | standalone agentic action | npm `hexabot-action-*` package
+- Target: Hexabot monorepo API action | application API extension action | npm `hexabot-action-*` package | standalone agentic action
 - Workflow types: conversational | manual | scheduled
 - Pattern: `createAction` | `BaseAction` | `defineAction`
 

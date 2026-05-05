@@ -6,6 +6,9 @@
 
 import { z } from 'zod';
 
+// This mirrors Hexabot monorepo API source actions. In a standalone
+// hexabot-action-* package, replace these imports with the package template's
+// public imports or configured TypeScript path aliases after inspecting it.
 import { createAction } from '@/actions/create-action';
 import { WorkflowRuntimeContext } from '@/workflow/contexts/workflow-runtime.context';
 

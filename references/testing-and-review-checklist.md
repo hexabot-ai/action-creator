@@ -54,7 +54,7 @@ Use this checklist when reviewing an action or planning validation for a new act
 
 ## Commands
 
-Run package-scoped checks from the repo root for touched workspaces:
+Use the target project's existing package manager and scripts. In the Hexabot monorepo, package-scoped checks usually look like:
 
 ```bash
 pnpm --filter @hexabot-ai/api run typecheck
@@ -69,3 +69,5 @@ For standalone `@hexabot-ai/agentic` action examples:
 pnpm --filter @hexabot-ai/agentic run typecheck
 pnpm --filter @hexabot-ai/agentic run test
 ```
+
+For a separate `hexabot-action-*` package, run that package's local typecheck, lint, test, and build scripts, for example `pnpm run typecheck`, `pnpm run test`, and `pnpm run build` when those scripts exist. If the workspace is only this skill bundle, report that no Hexabot runtime checks were available.

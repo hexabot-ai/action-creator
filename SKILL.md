@@ -5,11 +5,13 @@ description: Create, scaffold, implement, review, document, and improve Hexabot 
 
 # hexabot-action-creator
 
-Use this skill for Hexabot v3 action work. Hexabot action APIs are repo-defined and can evolve, so inspect the current repository before producing final code.
+Use this skill for Hexabot v3 action work. Hexabot action APIs are project-defined and can evolve, so inspect the user's active Hexabot repo, custom action package, or installed package types before producing final code.
 
 ## Source of truth
 
-Before final action code or review findings, inspect the relevant current repo files. If the current workspace is only this packaged skill, use the bundled references and examples, then state that runtime verification still needs a Hexabot repo.
+Before final action code or review findings, inspect the relevant current project files. If the workspace is only this packaged skill, use the bundled references and examples, then state that runtime verification still needs a Hexabot project or action package.
+
+When the user is working inside the Hexabot monorepo, these are the usual landmarks:
 
 - API action surface: `packages/api/src/actions/**`.
 - Built-in API action examples: `packages/api/src/extensions/actions/**`.
@@ -18,12 +20,14 @@ Before final action code or review findings, inspect the relevant current repo f
 - Agentic action base: `packages/agentic/src/action/**`, `packages/agentic/src/dsl.types.ts`, and `packages/agentic/README.md`.
 - Extension discovery: `packages/api/src/actions/actions.module.ts`, `packages/api/src/bindings/bindings.module.ts`, and `packages/api/README.md`.
 
-Do not invent decorators, schema fields, binding kinds, registration hooks, package layout, or config conventions that are not present in the repo.
+When the user is working in a separate `hexabot-action-*` package or application repo, inspect that package's `package.json`, source tree, generated templates, TypeScript path aliases, and dependency exports instead of assuming monorepo `packages/*` paths exist.
+
+Do not invent decorators, schema fields, binding kinds, registration hooks, package layout, import paths, or config conventions that are not present in the active project or installed Hexabot packages.
 
 ## Core workflow
 
-1. Identify the requested action capability, side effects, workflow type, and target location: built-in API source, custom project action under compiled `dist/extensions/actions`, npm package named `hexabot-action-*`, or standalone `@hexabot-ai/agentic` example.
-2. Inspect nearby examples with the same shape: web/API, AI/LLM, memory, subscriber, messaging, or binding-aware action.
+1. Identify the requested action capability, side effects, workflow type, and target location: Hexabot monorepo API source, custom application action, npm package named `hexabot-action-*`, or standalone `@hexabot-ai/agentic` example.
+2. Inspect nearby examples with the same shape when the target project is available: web/API, AI/LLM, memory, subscriber, messaging, or binding-aware action. If only this skill bundle is available, use the bundled example as illustrative guidance and call out unverified runtime assumptions.
 3. Choose the implementation pattern:
    - Use API `createAction` for simple Nest-discovered actions with no custom constructor dependencies.
    - Extend API `BaseAction` for constructor-injected services, inheritance, or richer behavior.
@@ -43,7 +47,7 @@ Do not invent decorators, schema fields, binding kinds, registration hooks, pack
 
 ## Output defaults
 
-- For implementation tasks, make the code change when the repo is available and the user asked for implementation.
+- For implementation tasks, make the code change when the target Hexabot repo or action package is available and the user asked for implementation.
 - For design-only tasks, provide a decision-complete action contract and call out any missing repo facts or runtime assumptions.
 - For reviews, lead with findings ordered by severity and cite files or action contract fields.
 - For workflow-only requests, use the Hexabot workflow skill unless action code or action contracts are required.
