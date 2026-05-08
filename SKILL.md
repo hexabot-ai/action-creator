@@ -1,9 +1,9 @@
 ---
-name: hexabot-action-creator
+name: hexabot-ai/action-creator
 description: Create, scaffold, implement, review, document, and improve Hexabot v3 actions, including custom workflow actions, external API integrations, LLM-powered actions, memory reads/writes, settings or credential handling, action bindings, extension/plugin action packages, and input/output contract design. Use when wrapping business integration requirements as Hexabot actions. Do not use for generic NestJS, frontend-only work, generic workflow YAML unless action implementation is required, chatbot copywriting, generic API clients not wrapped as Hexabot actions, or non-Hexabot automation frameworks.
 ---
 
-# hexabot-action-creator
+# hexabot-ai/action-creator
 
 Use this skill for Hexabot v3 action work. Hexabot action APIs are project-defined and can evolve, so inspect the user's active Hexabot repo, custom action package, or installed package types before producing final code.
 
