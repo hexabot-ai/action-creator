@@ -64,8 +64,9 @@ Common services available through `context.services` include `logger`, `settings
 ## Localization and UI metadata
 
 - Zod `.meta({ title, description, ... })` drives generated JSON schemas in the editor.
-- Built-in actions often provide i18n JSON under `i18n/en.translations.json` and `i18n/fr.translations.json`.
-- If adding built-in source actions with UI-visible titles/descriptions, plan matching i18n updates when the repo pattern requires them.
+- Built-in actions may provide i18n JSON under paths like `i18n/en.translations.json` and `i18n/fr.translations.json`.
+- Do not create or update extra locale files or translations, including French `fr.translations.json`, unless the user explicitly asks for localization work.
+- If UI-visible text needs a default-language entry for the target repo pattern, update only that required default locale and mention optional additional translations as a follow-up.
 
 ## Guardrails
 

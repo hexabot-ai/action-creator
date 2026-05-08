@@ -51,3 +51,4 @@ Do not invent decorators, schema fields, binding kinds, registration hooks, pack
 - For design-only tasks, provide a decision-complete action contract and call out any missing repo facts or runtime assumptions.
 - For reviews, lead with findings ordered by severity and cite files or action contract fields.
 - For workflow-only requests, use the Hexabot workflow skill unless action code or action contracts are required.
+- Do not add or update extra locale files or translations, including French `fr.translations.json`, unless the user explicitly asks for localization work.
