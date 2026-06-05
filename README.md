@@ -61,11 +61,6 @@ If only this packaged skill is available, the included references and example ca
 - Website: <https://hexabot.ai/>
 - Documentation: <https://docs.hexabot.ai/>
 - GitHub repository: <https://github.com/hexabot-ai/Hexabot>
-- GitHub issues: <https://github.com/hexabot-ai/Hexabot/issues>
-- GitHub pull requests: <https://github.com/hexabot-ai/Hexabot/pulls>
-- CLI package: <https://www.npmjs.com/package/@hexabot-ai/cli>
-- CLI source docs: <https://github.com/hexabot-ai/Hexabot/tree/main/packages/cli>
-- API action source: <https://github.com/hexabot-ai/Hexabot/tree/main/packages/api/src/actions>
 - Built-in action examples: <https://github.com/hexabot-ai/Hexabot/tree/main/packages/api/src/extensions/actions>
 - Extensions marketplace: <https://hexabot.ai/extensions>
 - Discord community: <https://discord.gg/hexabot>
@@ -76,7 +71,6 @@ When authoring actions against a local Hexabot project, the default development 
 
 - Admin UI: <http://localhost:3000>
 - API: <http://localhost:3000/api>
-- API docs, when enabled in non-production environments: <http://localhost:3000/docs>
 
 Common project bootstrap commands:
 
@@ -86,13 +80,6 @@ hexabot create my-project
 cd my-project
 hexabot dev
 ```
-
-Inside the Hexabot monorepo, action-related source usually starts in:
-
-- `packages/api/src/actions/**`
-- `packages/api/src/extensions/actions/**`
-- `packages/api/src/bindings/**`
-- `packages/agentic/src/action/**`
 
 ## License And Attribution
 
