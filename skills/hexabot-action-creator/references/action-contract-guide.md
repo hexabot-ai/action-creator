@@ -65,7 +65,9 @@ defs:
 
 ## Failure and retry policy
 
-- Reads should be repeatable and retry-safe.
-- Writes should accept an idempotency key or derive a stable external ID when the external system supports it.
-- Do not enable retries blindly for non-idempotent side effects such as creating tickets, sending messages, or charging accounts.
+- Choose retries from the action's effects and repeatability. An action name or HTTP method alone does not establish retry safety; confirm that reads are repeatable too.
+- For actions with side effects, establish idempotence or upstream-enforced deduplication with a stable operation key across attempts. Merely accepting or sending an idempotency key does not establish retry safety.
+- When repeating an operation could duplicate effects, explicitly set task-level `retries.enabled: false` to override any inherited retry policy. A timeout or disconnect leaves the remote outcome uncertain.
+- Thrown errors and runtime timeouts can trigger retries under the effective policy. Returned failure outputs such as `{ success: false }` or `{ ok: false }` do not; workflows must branch on them.
+- Forward the runtime `signal` to external calls and rethrow cancellations. The inspected runtime timeout wrapper rejects without aborting the running attempt; see [timeouts and cancellation](settings-and-secrets-guide.md#timeouts-and-cancellation) before assuming retries cannot overlap.
 - Log safe correlation data and return safe failure fields that workflows can branch on.

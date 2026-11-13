@@ -4,11 +4,13 @@
  * Full terms: see LICENSE.md.
  */
 
+import axios from 'axios';
 import { z } from 'zod';
 
 // This mirrors Hexabot monorepo API source actions. In a standalone
 // hexabot-action-* package, replace these imports with the package template's
 // public imports or configured TypeScript path aliases after inspecting it.
+// Declare axios as a direct dependency of that package.
 import { createAction } from '@/actions/create-action';
 import { WorkflowRuntimeContext } from '@/workflow/contexts/workflow-runtime.context';
 
@@ -74,9 +76,7 @@ type CreateCrmTicketSettings = z.infer<typeof createCrmTicketSettingsSchema>;
 
 const normalizeBaseUrl = (baseUrl: string) => baseUrl.replace(/\/+$/, '');
 
-const parseJsonBody = async (response: Response): Promise<unknown> => {
-  const text = await response.text();
-
+const parseJsonBody = (text: string): unknown => {
   if (!text.trim()) {
     return {};
   }
@@ -112,7 +112,7 @@ export const CreateCrmTicketAction = createAction<
   inputSchema: createCrmTicketInputSchema,
   outputSchema: createCrmTicketOutputSchema,
   settingsSchema: createCrmTicketSettingsSchema,
-  async execute({ input, context, settings }) {
+  async execute({ input, context, settings, signal }) {
     const logger = context.services.logger;
     const token = await context.services.credentials.findOneValue(
       settings.api_key,
@@ -128,7 +128,9 @@ export const CreateCrmTicketAction = createAction<
     const timeoutMs = settings.timeout_ms ?? 10000;
 
     try {
-      const response = await fetch(endpoint, {
+      const response = await axios.request<string>({
+        url: endpoint,
+        adapter: 'http',
         method: 'POST',
         headers: {
           authorization: `Bearer ${token}`,
@@ -137,21 +139,25 @@ export const CreateCrmTicketAction = createAction<
             ? { 'idempotency-key': input.idempotency_key }
             : {}),
         },
-        body: JSON.stringify({
+        data: {
           subject: input.subject,
           description: input.description,
           requester_email: input.requester_email,
           priority: input.priority,
-        }),
-        signal: AbortSignal.timeout(timeoutMs),
+        },
+        // Zero disables Axios's timeout; forward workflow cancellation too.
+        timeout: timeoutMs,
+        signal,
+        validateStatus: () => true,
+        responseType: 'text',
       });
-      const body = await parseJsonBody(response);
+      const body = parseJsonBody(response.data);
       const payload =
         body && typeof body === 'object' && !Array.isArray(body)
           ? (body as Record<string, unknown>)
           : {};
 
-      if (!response.ok) {
+      if (response.status < 200 || response.status >= 300) {
         const message =
           readString(payload, 'message') ??
           readString(payload, 'error') ??
@@ -159,7 +165,6 @@ export const CreateCrmTicketAction = createAction<
 
         logger.warn('create_crm_ticket failed', {
           status: response.status,
-          requester_email: input.requester_email,
           idempotency_key: input.idempotency_key,
         });
 
@@ -173,7 +178,19 @@ export const CreateCrmTicketAction = createAction<
       const ticketId = readString(payload, 'id') ?? readString(payload, 'key');
 
       if (!ticketId) {
-        throw new Error('CRM response did not include a ticket identifier.');
+        const message = 'CRM response did not include a ticket identifier.';
+
+        logger.warn('create_crm_ticket request error', {
+          error: message,
+          timeout_ms: timeoutMs,
+          idempotency_key: input.idempotency_key,
+        });
+
+        return {
+          success: false,
+          status: 'request_error',
+          error: message,
+        };
       }
 
       return {
@@ -183,12 +200,20 @@ export const CreateCrmTicketAction = createAction<
         url: readString(payload, 'url'),
       };
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unknown CRM request error';
+      if (signal?.aborted || axios.isCancel(error)) {
+        throw error;
+      }
+
+      const code = axios.isAxiosError(error) ? error.code : undefined;
+      // Raw client errors can contain credentials in their message or config.
+      const message = code
+        ? `CRM request failed (${code}).`
+        : 'CRM request failed.';
 
       logger.warn('create_crm_ticket request error', {
         error: message,
-        requester_email: input.requester_email,
+        code,
+        timeout_ms: timeoutMs,
         idempotency_key: input.idempotency_key,
       });
 

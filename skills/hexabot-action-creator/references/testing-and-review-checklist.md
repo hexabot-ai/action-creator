@@ -21,8 +21,11 @@ Use this checklist when reviewing an action or planning validation for a new act
 
 - Mock external SDKs, HTTP clients, mailers, subscriber services, credentials, memory stores, and LLM providers.
 - Assert safe request construction, timeout usage, headers, payload normalization, and idempotency key propagation.
+- Verify omitted timeout defaults, explicit budgets, and `timeout_ms: 0` semantics. Check client timers separately from runtime deadlines; a longer fetch abort deadline does not extend Undici's header/body timers.
+- Assert workflow cancellation reaches the HTTP client and propagates as a thrown cancellation rather than a failure output. For owned dispatchers, verify body consumption or cancellation and connection cleanup on success and failure.
 - Cover upstream success, non-2xx responses, network failure, malformed JSON, missing credentials, and invalid configuration.
-- Assert logs use safe metadata and do not include raw secrets.
+- For long requests, use a local delayed-response server with shortened durations to exercise delayed headers, stalled bodies, cancellation, and request counts. Use isolated test endpoints.
+- Assert logs use safe error codes and configured budgets without raw secrets, complete client errors, or credential-bearing request configuration.
 
 ## Binding tests
 
@@ -40,9 +43,11 @@ Use this checklist when reviewing an action or planning validation for a new act
 
 ## Idempotency and retry review
 
-- Mark read actions as retry-safe.
-- For write actions, require an idempotency strategy or explicitly document that retries may duplicate side effects.
-- Check task or default retry settings in any accompanying workflow YAML.
+- Establish repeatability before marking an action as retry-safe; names and HTTP methods alone do not establish its effects.
+- For actions with side effects, verify idempotence or enforced deduplication across attempts, including stable operation keys when the dependency supports them.
+- When repeated execution could duplicate effects, explicitly disable task retries and check that inherited workflow defaults do not re-enable them. A disconnected client does not prove remote work stopped.
+- Distinguish returned failure outputs from thrown failures: only thrown failures enter the automatic retry path. Check runtime timeouts separately, since the inspected wrapper can leave the previous attempt running.
+- Count executions or external calls for uncertain outcomes and ensure cancellation does not trigger another attempt.
 - Ensure failure outputs give workflows enough information to branch or escalate.
 
 ## Security review
